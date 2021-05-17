@@ -14,4 +14,10 @@ import os
 # -----------------------------------------------------------------------------
 
 if(__name__ == '__main__'):
-    print("Hello world!")
+    with open(os.path.join("data", "time_series_converted.txt"), "r") as f:
+        data = f.readlines()
+    for i, e in enumerate(data):
+        data[i] = e.split(";")
+        for j, e in enumerate(data[i]):
+            data[i][j] = float(e.strip())
+        print(data[i])
