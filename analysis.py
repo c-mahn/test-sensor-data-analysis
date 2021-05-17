@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------------------
 
 import matplotlib.pyplot as plt
+from scipy import interpolate
 import numpy as np
 import math as m
 import sys
@@ -27,6 +28,16 @@ def plot_werte(datenreihen, name=["Messwerte"]):
     plt.ylabel("")
     plt.title(name[0])
     plt.show()
+
+def fill_nan(A):
+    '''
+    interpolate to fill nan values
+    '''
+    inds = np.arange(A.shape[0])
+    good = np.where(np.isfinite(A))
+    f = interpolate.interp1d(inds[good], A[good],bounds_error=False)
+    B = np.where(np.isfinite(A),A,f(inds))
+    return B
 
 
 # Klassen
@@ -55,3 +66,13 @@ if(__name__ == '__main__'):
         datenreihen[2].append(i[2])
     datenreihen_ohne_zeit = datenreihen[1:3]
     plot_werte(datenreihen_ohne_zeit)
+
+    datenreihen[1] = fill_nan(np.array(datenreihen[1]))
+    datenreihen[2] = fill_nan(np.array(datenreihen[2]))
+    
+    x = np.array([datenreihen[0]]) 
+    y = np.array([datenreihen[1]])
+    slope = (len(x) * np.sum(x*y) - np.sum(x) * np.sum(y)) / (len(x)*np.sum(x*x) - np.sum(x) ** 2)
+    b = (np.sum(y) - slope *np.sum(x)) / len(x)
+
+    
