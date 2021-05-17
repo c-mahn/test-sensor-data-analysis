@@ -23,6 +23,7 @@ def timestamp_to_seconds(timestamp):
 
     datum = datetime.date(datum[0], datum[1], datum[2]).toordinal()
     ausgabe = ((datum*24+uhrzeit[0])*60+uhrzeit[1])*60+uhrzeit[2]
+    ausgabe = ausgabe - 62135683200  # converting to unix-time (count from 01.01.1970)
     return(ausgabe)
 
 
