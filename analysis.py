@@ -29,6 +29,25 @@ def plot_werte(datenreihen, name=["Messwerte"]):
     plt.title(name[0])
     plt.show()
 
+
+def plot_xy(datenreihen, name=["Messwerte"]):
+    """
+    Diese Funktion nimmt je zwei Datenreihen und plottet diese in Abhängigkeit
+    zueinander in ein Diagramm.
+    """
+    for i, datenreihe in enumerate(datenreihen):
+        if(i == 0):
+            plt.plot(datenreihe[0], datenreihe[1], "o")
+        else:
+            plt.plot(datenreihe[0], datenreihe[1])
+    plt.legend(name)
+    plt.grid()
+    plt.xlabel("Y")
+    plt.ylabel("X")
+    plt.title(name[0])
+    plt.show()
+
+
 def fill_nan(A):
     '''
     interpolate to fill nan values
