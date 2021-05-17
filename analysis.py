@@ -94,4 +94,5 @@ if(__name__ == '__main__'):
     slope = (len(x) * np.sum(x*y) - np.sum(x) * np.sum(y)) / (len(x)*np.sum(x*x) - np.sum(x) ** 2)
     b = (np.sum(y) - slope *np.sum(x)) / len(x)
 
-    
+    plt.plot(x, y)
+    plt.show()
