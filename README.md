@@ -1,7 +1,11 @@
 # test-sensor-data-analysis
 This is a Python script for anaysing sensor information
 
-'''
+# Notizen
+
+## Code-Beispiele
+
+```
 import numpy as np
 from scipy import interpolate
 
@@ -14,4 +18,4 @@ def fill_nan(A):
     f = interpolate.interp1d(inds[good], A[good],bounds_error=False)
     B = np.where(np.isfinite(A),A,f(inds))
     return B
-'''
+```
