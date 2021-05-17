@@ -1,14 +1,8 @@
 # Import von Bibliotheken
 # -----------------------------------------------------------------------------
 
-from datetime import datetime
-import matplotlib.pyplot as plt
-import numpy as np
-import math as m
-import sys
 import os
 import datetime
-import re
 
 # Funktionen
 # -----------------------------------------------------------------------------
