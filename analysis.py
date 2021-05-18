@@ -18,10 +18,7 @@ def plot_werte(datenreihen, name=["Messwerte"]):
     """
     for i, datenreihe in enumerate(datenreihen):
         zeit = range(len(datenreihe))
-        if(i == 0):
-            plt.plot(zeit, datenreihe, "o")
-        else:
-            plt.plot(zeit, datenreihe)
+        plt.plot(zeit, datenreihe)
     plt.legend(name)
     plt.grid()
     plt.xlabel("")
@@ -69,10 +66,10 @@ def low_pass_filter(datenreihe, filterungsgrad):
         summe = 0
         for j in range(filterungsgrad):
             ji = i-j
-            if(ji < 0):  # Wenn Wert ausserhalb der Datenreihe, dann Ersatzwert
-                summe =+ e
+            if(ji <= -1):  # Wenn Wert ausserhalb der Datenreihe, dann Ersatzwert
+                summe =+ float(e)
             else:
-                summe =+ datenreihe[ji]
+                summe =+ float(datenreihe[ji])
         ausgabe.append(summe/filterungsgrad)
     return(ausgabe)
 
@@ -102,7 +99,7 @@ if(__name__ == '__main__'):
         datenreihen[1].append(i[1])
         datenreihen[2].append(i[2])
     datenreihen_ohne_zeit = datenreihen[1:3]
-    # plot_werte(datenreihen_ohne_zeit)
+    plot_werte(datenreihen_ohne_zeit, ["Sensor 1", "Sensor 2"])
 
     # Füllen von Lücken in den Datenreihen
     for i, e in enumerate(datenreihen):
@@ -140,9 +137,10 @@ if(__name__ == '__main__'):
     # Low-Pass-Filterung der Sensorreihen
     datenreihen_low_pass = []
     for i, e in enumerate(datenreihen_ohne_trend):
-        datenreihen_low_pass.append(low_pass_filter(e, 20))
+        datenreihen_low_pass.append(low_pass_filter(e, 200))
 
     # Plot der low-pass Sensorreihen
+    plot_werte(datenreihen_low_pass, ["Low-Pass Sensor 1", "Low-Pass Sensor 2"])
     # Hier muss noch ein Diagram erzeugt werden
 
     # Hoch-Pass-Filterung der Sensorreihen
@@ -153,4 +151,5 @@ if(__name__ == '__main__'):
         datenreihen_hoch_pass[1].append(datenreihen_ohne_trend[1][i] - e)
 
     # Plot der hoch-pass Sensorreihen
+    plot_werte(datenreihen_hoch_pass, ["Hoch-Pass Sensor 1", "Hoch-Pass Sensor 2"])
     # Hier muss noch ein Diagram erzeugt werden
