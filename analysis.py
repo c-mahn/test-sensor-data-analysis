@@ -63,14 +63,16 @@ def low_pass_filter(datenreihe, filterungsgrad):
     """
     ausgabe = []
     for i, e in enumerate(datenreihe):
+        divisor = filterungsgrad
         summe = 0
         for j in range(filterungsgrad):
             ji = i-j
-            if(ji <= -1):  # Wenn Wert ausserhalb der Datenreihe, dann Ersatzwert
-                summe =+ float(e)
+            if(ji < 0):  # Wenn Wert ausserhalb der Datenreihe, dann Ersatzwert
+                divisor = divisor - 1
             else:
-                summe =+ float(datenreihe[ji])
-        ausgabe.append(summe/filterungsgrad)
+                summe = summe + float(datenreihe[ji])
+        temp = summe/divisor
+        ausgabe.append(temp)
     return(ausgabe)
 
 
@@ -127,35 +129,44 @@ if(__name__ == '__main__'):
         linearisierung[1].append(i*steigung_2+offset_2)
 
     # Plot der linearen Regression
-    plot_werte([datenreihen[1], linearisierung[0]], ["Low-Pass Sensor 1", "Linearisierung"])
-    plot_werte([datenreihen[2], linearisierung[1]], ["Low-Pass Sensor 2", "Linearisierung"])
+    plot_werte([datenreihen[1], linearisierung[0]], ["Sensor 1", "Linearisierung"])
+    plot_werte([datenreihen[2], linearisierung[1]], ["Sensor 2", "Linearisierung"])
 
     # Bereinigung des Trends beider Sensorreihen
     datenreihen_ohne_trend = [[], []]
+    print(f"[{1}/{len(datenreihen_ohne_trend)}] Bereinigung des Trends...", end="\r")
     for i, e in enumerate(datenreihen[1]):
         datenreihen_ohne_trend[0].append(e - (steigung_1*(datenreihen[0][i])+offset_1))
+    print(f"[{2}/{len(datenreihen_ohne_trend)}] Bereinigung des Trends...", end="\r")
     for i, e in enumerate(datenreihen[2]):
         datenreihen_ohne_trend[1].append(e - (steigung_2*(datenreihen[0][i])+offset_2))
+    print("")
 
     # Plot der vom Trend bereinigten Sensorreihen
-    plot_werte(datenreihen_ohne_trend, ["Low-Pass Sensor 1", "Low-Pass Sensor 2"])
+    plot_werte(datenreihen_ohne_trend, ["Sensor 1 (ohne Trend)", "Sensor 2 (ohne Trend)"])
 
     # Low-Pass-Filterung der Sensorreihen
+    low_pass_strength = 500
     datenreihen_low_pass = []
     for i, e in enumerate(datenreihen_ohne_trend):
-        datenreihen_low_pass.append(low_pass_filter(e, 200))
+        print(f"[{i+1}/{len(datenreihen_ohne_trend)}] Low-Pass-Filterung (Strength {low_pass_strength})...", end="\r")
+        datenreihen_low_pass.append(low_pass_filter(e, low_pass_strength))
+    print("")
 
     # Plot der low-pass Sensorreihen
-    plot_werte(datenreihen_low_pass, ["Low-Pass Sensor 1", "Low-Pass Sensor 2"])
+    plot_werte(datenreihen_low_pass, ["Sensor 1 (mit Low-Pass-Filter)", "Sensor 2 (mit Low-Pass-Filter)"])
     # Hier muss noch ein Diagram erzeugt werden
 
     # Hoch-Pass-Filterung der Sensorreihen
     datenreihen_hoch_pass = [[], []]
+    print(f"[{1}/{len(datenreihen_hoch_pass)}] Hoch-Pass-Filterung...", end="\r")
     for i, e in enumerate(datenreihen_low_pass[0]):
         datenreihen_hoch_pass[0].append(datenreihen_ohne_trend[0][i] - e)
+    print(f"[{2}/{len(datenreihen_hoch_pass)}] Hoch-Pass-Filterung...", end="\r")
     for i, e in enumerate(datenreihen_low_pass[1]):
         datenreihen_hoch_pass[1].append(datenreihen_ohne_trend[1][i] - e)
+    print("")
 
     # Plot der hoch-pass Sensorreihen
-    plot_werte(datenreihen_hoch_pass, ["Hoch-Pass Sensor 1", "Hoch-Pass Sensor 2"])
+    plot_werte(datenreihen_hoch_pass, ["Sensor 1 (mit Hoch-Pass-Filter)", "Sensor 2 (mit Hoch-Pass-Filter)"])
     # Hier muss noch ein Diagram erzeugt werden
