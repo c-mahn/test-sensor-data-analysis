@@ -117,12 +117,18 @@ if(__name__ == '__main__'):
     x = np.array(datenreihen[0])
     y = np.array(datenreihen[2])
     steigung_2 = (len(x) * np.sum(x*y) - np.sum(x) * np.sum(y)) / (len(x)*np.sum(x*x) - np.sum(x) ** 2)
-    offset_2 = (np.sum(y) - steigung_1 *np.sum(x)) / len(x)
+    offset_2 = (np.sum(y) - steigung_2 *np.sum(x)) / len(x)
     print(f'[Sensor 2] Trend: ({steigung_2:.6f})x + ({offset_2:+.6f})')
 
+    # Erstellung Lineare Regression zum Plotten (Plot-Punkte)
+    linearisierung = [[], []]
+    for i in datenreihen[0]:
+        linearisierung[0].append(i*steigung_1+offset_1)
+        linearisierung[1].append(i*steigung_2+offset_2)
+
     # Plot der linearen Regression
-    # plt.scatter(x, y)
-    # Hier muss noch ein Diagram erzeugt werden
+    plot_werte([datenreihen[1], linearisierung[0]], ["Low-Pass Sensor 1", "Linearisierung"])
+    plot_werte([datenreihen[2], linearisierung[1]], ["Low-Pass Sensor 2", "Linearisierung"])
 
     # Bereinigung des Trends beider Sensorreihen
     datenreihen_ohne_trend = [[], []]
@@ -132,7 +138,7 @@ if(__name__ == '__main__'):
         datenreihen_ohne_trend[1].append(e - (steigung_2*(datenreihen[0][i])+offset_2))
 
     # Plot der vom Trend bereinigten Sensorreihen
-    # Hier muss noch ein Diagram erzeugt werden
+    plot_werte(datenreihen_ohne_trend, ["Low-Pass Sensor 1", "Low-Pass Sensor 2"])
 
     # Low-Pass-Filterung der Sensorreihen
     datenreihen_low_pass = []
