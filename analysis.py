@@ -67,7 +67,7 @@ def low_pass_filter(datenreihe, filterungsgrad):
         summe = 0
         for j in range(filterungsgrad):
             ji = i-j
-            if(ji < 0):  # Wenn Wert ausserhalb der Datenreihe, dann Ersatzwert
+            if(ji < 0):  # Wenn Wert ausserhalb der Datenreihe, ändern des Divisors
                 divisor = divisor - 1
             else:
                 summe = summe + float(datenreihe[ji])
