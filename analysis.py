@@ -7,6 +7,7 @@ import numpy as np
 import math as m
 import sys
 import os
+from scipy.fft import fft, fftfreq
 
 
 # Funktionen
@@ -33,10 +34,7 @@ def plot_xy(datenreihen, name=["Messwerte"]):
     zueinander in ein Diagramm.
     """
     for i, datenreihe in enumerate(datenreihen):
-        if(i == 0):
-            plt.plot(datenreihe[0], datenreihe[1], "o")
-        else:
-            plt.plot(datenreihe[0], datenreihe[1])
+        plt.plot(datenreihe[0], datenreihe[1])
     plt.legend(name)
     plt.grid()
     plt.xlabel("Y")
@@ -146,7 +144,7 @@ if(__name__ == '__main__'):
     plot_werte(datenreihen_ohne_trend, ["Sensor 1 (ohne Trend)", "Sensor 2 (ohne Trend)"])
 
     # Low-Pass-Filterung der Sensorreihen
-    low_pass_strength = 500
+    low_pass_strength = 25
     datenreihen_low_pass = []
     for i, e in enumerate(datenreihen_ohne_trend):
         print(f"[{i+1}/{len(datenreihen_ohne_trend)}] Low-Pass-Filterung (Strength {low_pass_strength})...", end="\r")
@@ -169,4 +167,17 @@ if(__name__ == '__main__'):
 
     # Plot der hoch-pass Sensorreihen
     plot_werte(datenreihen_hoch_pass, ["Sensor 1 (mit Hoch-Pass-Filter)", "Sensor 2 (mit Hoch-Pass-Filter)"])
-    # Hier muss noch ein Diagram erzeugt werden
+
+    # Fourier-Transformation
+
+    # Weitere Informationen:
+    # https://docs.scipy.org/doc/scipy/reference/tutorial/fft.html
+    sample_frequenz = 1/10
+    yf_1 = fft(datenreihen_low_pass[0])
+    xf_1 = fftfreq(len(datenreihen_low_pass[0]), 1/sample_frequenz)
+    yf_2 = fft(datenreihen_low_pass[1])
+    xf_2 = fftfreq(len(datenreihen_low_pass[1]), 1/sample_frequenz)
+    plot_xy([[xf_1, yf_1],
+             [xf_2, yf_2]],
+            ["Fourier-Transformation (Sensor 1)",
+             "Fourier-Transformation (Sensor 2)"])
