@@ -177,6 +177,8 @@ if(__name__ == '__main__'):
     xf_1 = fftfreq(len(datenreihen_low_pass[0]), 1/sample_frequenz)
     yf_2 = fft(datenreihen_low_pass[1])
     xf_2 = fftfreq(len(datenreihen_low_pass[1]), 1/sample_frequenz)
+
+    # Plot der Fourier-Transformation
     plot_xy([[xf_1, yf_1],
              [xf_2, yf_2]],
             ["Fourier-Transformation (Sensor 1)",
