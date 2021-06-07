@@ -8,6 +8,7 @@ import math as m
 import sys
 import os
 from scipy.fft import fft, fftfreq
+from scipy import signal
 
 
 # Funktionen
@@ -74,6 +75,21 @@ def low_pass_filter(datenreihe, filterungsgrad):
     return(ausgabe)
 
 
+def cross_correlation(x_red, y_red):
+        Nx = len(x_red)
+        if Nx != len(y_red):
+            raise ValueError('x and y must be equal length')
+        c = np.correlate(x_red, y_red, mode=2)
+        c /= np.sqrt(np.dot(x_red, x_red) * np.dot(y_red, y_red))
+        maxlags = Nx - 1
+        if maxlags >= Nx or maxlags < 1:
+            raise ValueError('maglags must be None or strictly '
+                             'positive < %d' % Nx)
+        lags = np.arange(-maxlags, maxlags + 1)
+        c = c[Nx - 1 - maxlags:Nx + maxlags]
+        return lags, c
+
+
 # Klassen
 # -----------------------------------------------------------------------------
 
@@ -83,28 +99,36 @@ def low_pass_filter(datenreihe, filterungsgrad):
 if(__name__ == '__main__'):
 
     # Einlesen der Daten
+    print(f"[{1}/{1}] Einlesen der Daten...", end="\r")
     with open(os.path.join("data", "time_series_converted.txt"), "r") as f:
         data = f.readlines()
+    print("")
     
     # Datenbereinigung
+    print(f"[{1}/{1}] Datenbereinigung...", end="\r")
     for i, e in enumerate(data):
         data[i] = e.split(";")
         for j, e in enumerate(data[i]):
             data[i][j] = float(e.strip())
+    print("")
 
     # Umwandeln in Datenreihen
+    print(f"[{1}/{1}] Datenkonvertierung...", end="\r")
     datenreihen = [[], [], []]
     for i in data:
         datenreihen[0].append(i[0])
         datenreihen[1].append(i[1])
         datenreihen[2].append(i[2])
     datenreihen_ohne_zeit = datenreihen[1:3]
-    plot_werte(datenreihen_ohne_zeit, ["Sensor 1", "Sensor 2"])
+    print("")
+    # plot_werte(datenreihen_ohne_zeit, ["Sensor 1", "Sensor 2"])
 
     # Füllen von Lücken in den Datenreihen
+    print(f"[{1}/{1}] Datenlücken-Bereinigung...", end="\r")
     for i, e in enumerate(datenreihen):
         if(i != 0):
             datenreihen[i] = fill_nan(np.array(e))
+    print("")
     
     # Berechnung der linearen Regression von Sensor 1
     x = np.array(datenreihen[0])
@@ -125,10 +149,9 @@ if(__name__ == '__main__'):
     for i in datenreihen[0]:
         linearisierung[0].append(i*steigung_1+offset_1)
         linearisierung[1].append(i*steigung_2+offset_2)
-
     # Plot der linearen Regression
-    plot_werte([datenreihen[1], linearisierung[0]], ["Sensor 1", "Linearisierung"])
-    plot_werte([datenreihen[2], linearisierung[1]], ["Sensor 2", "Linearisierung"])
+    # plot_werte([datenreihen[1], linearisierung[0]], ["Sensor 1", "Linearisierung"])
+    # plot_werte([datenreihen[2], linearisierung[1]], ["Sensor 2", "Linearisierung"])
 
     # Bereinigung des Trends beider Sensorreihen
     datenreihen_ohne_trend = [[], []]
@@ -139,9 +162,8 @@ if(__name__ == '__main__'):
     for i, e in enumerate(datenreihen[2]):
         datenreihen_ohne_trend[1].append(e - (steigung_2*(datenreihen[0][i])+offset_2))
     print("")
-
     # Plot der vom Trend bereinigten Sensorreihen
-    plot_werte(datenreihen_ohne_trend, ["Sensor 1 (ohne Trend)", "Sensor 2 (ohne Trend)"])
+    # plot_werte(datenreihen_ohne_trend, ["Sensor 1 (ohne Trend)", "Sensor 2 (ohne Trend)"])
 
     # Low-Pass-Filterung der Sensorreihen
     low_pass_strength = 25
@@ -150,10 +172,8 @@ if(__name__ == '__main__'):
         print(f"[{i+1}/{len(datenreihen_ohne_trend)}] Low-Pass-Filterung (Strength {low_pass_strength})...", end="\r")
         datenreihen_low_pass.append(low_pass_filter(e, low_pass_strength))
     print("")
-
     # Plot der low-pass Sensorreihen
-    plot_werte(datenreihen_low_pass, ["Sensor 1 (mit Low-Pass-Filter)", "Sensor 2 (mit Low-Pass-Filter)"])
-    # Hier muss noch ein Diagram erzeugt werden
+    # plot_werte(datenreihen_low_pass, ["Sensor 1 (mit Low-Pass-Filter)", "Sensor 2 (mit Low-Pass-Filter)"])
 
     # Hoch-Pass-Filterung der Sensorreihen
     datenreihen_hoch_pass = [[], []]
@@ -164,22 +184,42 @@ if(__name__ == '__main__'):
     for i, e in enumerate(datenreihen_low_pass[1]):
         datenreihen_hoch_pass[1].append(datenreihen_ohne_trend[1][i] - e)
     print("")
-
     # Plot der hoch-pass Sensorreihen
-    plot_werte(datenreihen_hoch_pass, ["Sensor 1 (mit Hoch-Pass-Filter)", "Sensor 2 (mit Hoch-Pass-Filter)"])
+    # plot_werte(datenreihen_hoch_pass, ["Sensor 1 (mit Hoch-Pass-Filter)", "Sensor 2 (mit Hoch-Pass-Filter)"])
 
     # Fourier-Transformation
 
     # Weitere Informationen:
     # https://docs.scipy.org/doc/scipy/reference/tutorial/fft.html
     sample_frequenz = 1/10
+    print(f"[{1}/{len(datenreihen_ohne_trend)}] Fast-Fourier-Transformation...", end="\r")
     yf_1 = fft(datenreihen_low_pass[0])
     xf_1 = fftfreq(len(datenreihen_low_pass[0]), 1/sample_frequenz)
+    print(f"[{2}/{len(datenreihen_ohne_trend)}] Fast-Fourier-Transformation...", end="\r")
     yf_2 = fft(datenreihen_low_pass[1])
     xf_2 = fftfreq(len(datenreihen_low_pass[1]), 1/sample_frequenz)
-
+    print("")
     # Plot der Fourier-Transformation
-    plot_xy([[xf_1, yf_1],
-             [xf_2, yf_2]],
-            ["Fourier-Transformation (Sensor 1)",
-             "Fourier-Transformation (Sensor 2)"])
+    # plot_xy([[xf_1, yf_1],
+    #          [xf_2, yf_2]],
+    #         ["Fourier-Transformation (Sensor 1)",
+    #          "Fourier-Transformation (Sensor 2)"])
+
+    # Kreuz-Korrelation
+
+    # Weitere Informationen:
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.correlate.html
+    print(f"[{1}/{1}] Kreuz-Korrelation...", end="\r")
+    kreuzkorrelation = cross_correlation(datenreihen_low_pass[0], datenreihen_low_pass[1])
+    print("")
+    plot_xy([kreuzkorrelation], ["kreuzkorrelation"])
+
+    # Weitere Informationen:
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html
+    print(f"[{1}/{1}] Kreuz-Korrelationsspitzen...", end="\r")
+    korrelation_spitzen = signal.find_peaks(kreuzkorrelation[1], height=0.5, distance=100)
+    print("")
+    print("Korrelationsspitzen:")
+    for i in korrelation_spitzen[0]:
+        print(kreuzkorrelation[0][i]*10/60, end=", ")
+    print("")
