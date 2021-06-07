@@ -212,7 +212,7 @@ if(__name__ == '__main__'):
     print(f"[{1}/{1}] Kreuz-Korrelation...", end="\r")
     kreuzkorrelation = cross_correlation(datenreihen_low_pass[0], datenreihen_low_pass[1])
     print("")
-    plot_xy([kreuzkorrelation], ["kreuzkorrelation"])
+    # plot_xy([kreuzkorrelation], ["kreuzkorrelation"])
 
     # Weitere Informationen:
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html
